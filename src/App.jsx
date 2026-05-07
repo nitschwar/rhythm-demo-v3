@@ -362,7 +362,7 @@ const INTERVENTIONS = [
   { id: "journal", label: "Journaling", tag: "Expressive writing", color: T.terracotta, bg: T.terracottaPale, border: T.terracottaLight, time: "8 min", desc: "Process today's experience through structured reflection." },
   { id: "reframe", label: "Cognitive reframing", tag: "CBT", color: T.charcoal, bg: T.white, border: T.border, time: "7 min", desc: "Examine a thought that's weighing on you. Watch it shift." },
   { id: "breathwork", label: "Box breathing", tag: "Autonomic regulation", color: T.sage, bg: T.sagePale, border: T.sageLight, time: "5 min", desc: "A clinical breathwork protocol. Breathe with the wind." },
-  { id: "act", label: "Body awareness", tag: "ACT — defusion", color: T.charcoalMid, bg: "#F0EDE8", border: T.border, time: "6 min", desc: "Observe how your body feels today without judgement." },
+  { id: "act", label: "Why do I feel like this?", tag: "Psychoeducation", color: T.sage, bg: T.sagePale, border: T.sageLight, time: "6 min", desc: "Understand the neurobiological reason behind how you feel right now." },
   { id: "effort", label: "Effort tracking", tag: "Behavioral activation", color: T.terracotta, bg: T.white, border: T.terracottaLight, time: "6 min", desc: "Plan an activity. Compare predicted vs actual effort." },
 ];
 
@@ -487,12 +487,12 @@ function JournalIntervention({ data, onDone }) {
 
 // ─── INTERVENTION 2: COGNITIVE REFRAMING ───
 const DISTORTIONS = [
-  "All-or-nothing thinking",
-  "Should statements",
-  "Mind reading",
-  "Catastrophising",
-  "Emotional reasoning",
-  "Personalisation",
+  { label: "Seeing things as totally good or totally bad, with no middle ground", clinical: "All-or-nothing thinking" },
+  { label: "Holding yourself to rigid rules about how you must feel or perform", clinical: "Should statements" },
+  { label: "One difficult moment means everything is always like this", clinical: "Overgeneralisation" },
+  { label: "Expecting the worst outcome and believing you could not cope with it", clinical: "Catastrophising" },
+  { label: "Using how you feel as proof something is true: I feel like a failure, so I must be one", clinical: "Emotional reasoning" },
+  { label: "Blaming yourself entirely for things that were only partly in your control", clinical: "Personalisation" },
 ];
 
 function ReframeIntervention({ data, onDone }) {
@@ -598,12 +598,19 @@ function ReframeIntervention({ data, onDone }) {
       </p>
       <div style={{ display: "flex", flexDirection: "column", gap: 8, flex: 1 }}>
         {DISTORTIONS.map(d => (
-          <button key={d} onClick={() => setDistortion(d)} style={{
-            padding: "11px 14px", border: `1.5px solid ${distortion === d ? T.terracotta : T.border}`,
-            background: distortion === d ? T.terracottaPale : T.white,
-            color: distortion === d ? T.terracotta : T.charcoalMid,
-            fontSize: 13, fontFamily: fontBody, cursor: "pointer", textAlign: "left", transition: "all 0.2s",
-          }}>{d}</button>
+          <button key={d.clinical} onClick={() => setDistortion(d.clinical)} style={{
+            padding: "11px 14px", border: `1.5px solid ${distortion === d.clinical ? T.terracotta : T.border}`,
+            background: distortion === d.clinical ? T.terracottaPale : T.white,
+            color: distortion === d.clinical ? T.terracotta : T.charcoalMid,
+            fontSize: 12, fontFamily: fontBody, cursor: "pointer", textAlign: "left",
+            transition: "all 0.2s", lineHeight: 1.5,
+          }}>
+            <span style={{ display: "block", marginBottom: 2 }}>{d.label}</span>
+            <span style={{ fontSize: 10, fontWeight: 500, letterSpacing: "0.07em", textTransform: "uppercase",
+              color: distortion === d.clinical ? T.terracotta : T.charcoalLight, opacity: 0.8 }}>
+              [{d.clinical}]
+            </span>
+          </button>
         ))}
       </div>
     </div>,
@@ -856,143 +863,138 @@ function BreathworkIntervention({ onDone }) {
   );
 }
 
-// ─── INTERVENTION 4: ACT — BODY AWARENESS ───
-const ACT_STATEMENTS = [
-  "My body feels different at different points in my cycle.",
-  "Some days my body feels harder to live in.",
-  "I notice myself judging how I feel physically.",
-  "My energy and body sensations don't always match what I expect.",
-];
+// ─── INTERVENTION 4: PSYCHOEDUCATION + NORMALISATION ───
+const PHASE_EXPLANATIONS = {
+  Menstrual: {
+    headline: "Your brain is in its lowest-hormone state right now.",
+    body: "Estrogen and progesterone are at their nadir during menstruation. The neural systems they modulate — including serotonin signalling, hippocampal plasticity, and GABAergic tone — are operating with less hormonal support than at any other point in your cycle. What you may experience as low energy, reduced motivation, or emotional sensitivity is a real neurobiological state, not a character flaw.",
+    normalise: "Feeling depleted right now is expected. Your brain is not broken. It is in a low-resource phase and responding accordingly.",
+    data: "Studies using ecological momentary assessment find that perceived effort and fatigue peak during the menstrual phase — even when objective performance is maintained.",
+  },
+  Follicular: {
+    headline: "Rising estrogen is increasing your neurological resources.",
+    body: "As estrogen rises through the follicular phase, it upregulates BDNF — a protein that supports neuronal connectivity and synaptic plasticity. Serotonin sensitivity increases, dopamine pathways become more responsive, and verbal memory tends to be at its strongest. Many women find initiation easier and cognitive load more manageable during this window.",
+    normalise: "If you feel more capable or motivated right now, that is not a coincidence. Your neurochemistry is actively supporting it.",
+    data: "Verbal memory performance shows a measurable follicular advantage, replicated across multiple studies using both lab tasks and daily diary methods.",
+  },
+  Ovulatory: {
+    headline: "You are near peak estrogen — and your brain knows it.",
+    body: "The ovulatory phase centres on an LH surge and an estrogen peak. Neural circuits involved in social cognition, communication, and reward processing show increased activity. Confidence, verbal fluency, and approach motivation tend to be elevated. This is a brief window — typically 2 to 3 days.",
+    normalise: "Feeling socially energised or unusually capable right now is neurobiologically supported. Note it — and also know it will shift.",
+    data: "Some studies report increased risk tolerance and enhanced social cognition during the ovulatory phase, though effect sizes vary considerably between individuals.",
+  },
+  Luteal: {
+    headline: "Progesterone is dominant — and your brain is working harder.",
+    body: "In the luteal phase, progesterone and its metabolite allopregnanolone modulate GABA-A receptors — the same receptors targeted by anti-anxiety medication. For most women this is calming, but for those with sensitivity to allopregnanolone fluctuations, it can paradoxically increase anxiety and irritability. Sympathetic nervous system tone tends to be elevated, HRV decreases, and frustration tolerance is often lower. Motivation and cognitive load capacity may feel reduced even when nothing external has changed.",
+    normalise: "Feeling more reactive, more tired, or less motivated right now is a luteal-phase neurobiological signature. It is temporary and it is not who you are.",
+    data: "Effort perception research shows that anticipated effort for physical and cognitive tasks is highest in the luteal phase — meaning things feel harder to start, even when they are not objectively harder to complete.",
+  },
+  "Not sure": {
+    headline: "Your brain changes across your cycle — even when the cycle is hard to track.",
+    body: "Whether or not you know your current phase, the core principle applies: fluctuations in estrogen, progesterone, and their neuroactive metabolites directly modulate mood, motivation, memory, and effort perception. These are not personality traits. They are state-dependent neurobiological conditions that shift across approximately 28 days.",
+    normalise: "Whatever you are feeling today has a neurobiological context. It is not the whole story of who you are.",
+    data: "Within-person variation in mood and cognitive experience across the cycle is substantial — and is often larger than the variation between people.",
+  },
+};
 
-function ActIntervention({ onDone }) {
+const MOOD_EXPLANATIONS = {
+  low_energy: "Low energy often reflects reduced dopaminergic tone or elevated progesterone — both of which dampen the neural circuits that drive initiation and motivation. This is a state, not a trait.",
+  anxious: "Anxiety in the luteal phase is often mediated by allopregnanolone sensitivity and elevated sympathetic tone. Your nervous system is more reactive right now — not permanently, and not without reason.",
+  unmotivated: "Motivation requires dopamine and a functional reward prediction signal. Both are sensitive to hormonal fluctuation. Feeling unmotivated does not mean you have become a less motivated person.",
+  foggy: "Cognitive fog can reflect progesterone sedating effects, disrupted sleep architecture in the luteal phase, or reduced BDNF availability. It is a physiological state with a neurobiological cause.",
+  overwhelmed: "Overwhelm often reflects a temporarily reduced capacity for emotional regulation — the prefrontal cortex has less hormonal support to modulate amygdala reactivity. This is a bandwidth issue, not a competence issue.",
+  irritable: "Irritability in the premenstrual window is one of the best-documented cycle-related neuropsychological findings. It reflects changes in serotonin sensitivity, allopregnanolone levels, and autonomic reactivity — not a character flaw.",
+  okay: "Feeling okay is worth noting. Your baseline is not always disrupted by cycle phase — individual variation is high and many women have minimal phase-related symptoms.",
+  good: "Feeling good is data too. Note where you are in your cycle. Understanding when you tend to feel well is as clinically useful as understanding when you do not.",
+};
+
+function PsychoeducationIntervention({ data, onDone }) {
   const [step, setStep] = useState(0);
-  const [floating, setFloating] = useState(false);
-  const [floated, setFloated] = useState([]);
+  const [reflection, setReflection] = useState("");
   const [done, setDone] = useState(false);
-  const [bodyNow, setBodyNow] = useState("");
-  const [values, setValues] = useState("");
 
-  const floatThought = (thought) => {
-    setFloating(true);
-    setTimeout(() => {
-      setFloated(f => [...f, thought]);
-      setFloating(false);
-    }, 1800);
-  };
+  const phase = data.phase || "Not sure";
+  const mood = data.mood || "okay";
+  const phaseInfo = PHASE_EXPLANATIONS[phase] || PHASE_EXPLANATIONS["Not sure"];
+  const moodInfo = MOOD_EXPLANATIONS[mood] || MOOD_EXPLANATIONS["okay"];
 
   if (done) return (
     <ScreenWrap>
-      <Label color={T.sage}>ACT — complete</Label>
-      <DisplayH size={24}>Observed, not attached.</DisplayH>
-      <p style={{ fontSize: 13, color: T.charcoalMid, lineHeight: 1.7, marginBottom: 20 }}>
-        Defusion — creating distance between yourself and your thoughts about your body — is one of the core ACT mechanisms. Noticing that a thought is just a thought, not a fact, reduces the psychological inflexibility that amplifies physical discomfort.
-      </p>
-      <Card color={T.sagePale} style={{ border: `1px solid ${T.sageLight}` }}>
-        <p style={{ fontSize: 11, color: T.sage, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8, fontWeight: 500 }}>What you let pass</p>
-        {floated.map((f, i) => (
-          <p key={i} style={{ fontSize: 12, color: T.charcoalMid, fontStyle: "italic", margin: "0 0 6px" }}>"{f}"</p>
-        ))}
-      </Card>
-      <div style={{ marginTop: 20 }}>
-        <Btn onClick={onDone} variant="sage">Back to interventions</Btn>
+      <Label color={T.sage}>Complete</Label>
+      <DisplayH size={24}>Your takeaway.</DisplayH>
+      <div style={{ background: T.terracottaPale, border: `1px solid ${T.terracottaLight}`, padding: "18px 20px", marginBottom: 14 }}>
+        <p style={{ fontSize: 10, color: T.terracotta, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>What is actually happening right now</p>
+        <p style={{ fontFamily: fontDisplay, fontSize: 15, fontStyle: "italic", color: T.charcoal, lineHeight: 1.5, margin: "0 0 8px" }}>
+          {phaseInfo.normalise}
+        </p>
+        <p style={{ fontSize: 11, color: T.charcoalMid, margin: 0, lineHeight: 1.6 }}>{moodInfo}</p>
       </div>
+      {reflection && (
+        <div style={{ background: T.sagePale, border: `1px solid ${T.sageLight}`, padding: "14px 16px", marginBottom: 14 }}>
+          <p style={{ fontSize: 10, color: T.sage, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>Your reflection</p>
+          <p style={{ fontSize: 12, color: T.charcoalMid, fontStyle: "italic", margin: 0 }}>"{reflection}"</p>
+        </div>
+      )}
+      <p style={{ fontSize: 11, color: T.charcoalLight, lineHeight: 1.65, marginBottom: 20, fontStyle: "italic" }}>
+        Psychoeducation — understanding the neurobiological basis of your experience — reduces self-blame and improves help-seeking. It is an evidence-based intervention in its own right.
+      </p>
+      <Btn onClick={onDone} variant="sage">Back to interventions</Btn>
     </ScreenWrap>
   );
 
   const steps = [
-    // Intro
-    <div key="intro" style={{ flex: 1 }}>
-      <Label>Body awareness · ACT defusion</Label>
-      <DisplayH size={24}>Your body across the cycle.</DisplayH>
-      <p style={{ fontSize: 13, color: T.charcoalMid, lineHeight: 1.7, marginBottom: 16 }}>
-        Your body changes measurably across your cycle — bloating, breast tenderness, energy shifts, changes in how exercise feels. These are real neurobiological and physiological events.
-      </p>
-      <p style={{ fontSize: 13, color: T.charcoalMid, lineHeight: 1.7, marginBottom: 16 }}>
-        The problem isn't the changes themselves — it's the layer of judgement we add on top of them. ACT defusion creates space between you and that layer.
-      </p>
-      <Card color={T.sagePale} style={{ border: `1px solid ${T.sageLight}` }}>
-        <p style={{ fontSize: 12, color: T.sage, margin: 0, lineHeight: 1.6 }}>
-          In a moment, we'll practice watching thoughts about your body float by — like leaves on a stream — without grabbing onto them.
-        </p>
-      </Card>
-    </div>,
-
-    // Body check-in
-    <div key="body" style={{ flex: 1 }}>
-      <Label>Body awareness · Step 2</Label>
-      <DisplayH size={22}>How does your body feel right now?</DisplayH>
-      <p style={{ fontSize: 13, color: T.charcoalMid, lineHeight: 1.65, marginBottom: 16 }}>
-        Just notice. No judgement yet — just observation. Where is there tension, heaviness, discomfort, or ease?
-      </p>
-      <textarea value={bodyNow} onChange={({target:{value:v}}) => setBodyNow(v)}
-        placeholder={`e.g. Heavy in my lower abdomen. Shoulders tight. Tired behind my eyes. Slightly bloated.`}
-        style={{ width: "100%", height: 110, padding: 12, fontSize: 12, fontFamily: fontBody, border: `1.5px solid ${T.border}`, resize: "none", lineHeight: 1.7, background: T.white, boxSizing: "border-box" }} />
-      <p style={{ fontSize: 11, color: T.charcoalLight, fontStyle: "italic", marginTop: 8 }}>
-        These sensations are information. They are not you, and they are not permanent.
-      </p>
-    </div>,
-
-    // Defusion stream
-    <div key="stream" style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-      <Label>Body awareness · Step 3</Label>
-      <DisplayH size={22}>Let it float past.</DisplayH>
-      <p style={{ fontSize: 13, color: T.charcoalMid, lineHeight: 1.65, marginBottom: 20 }}>
-        Tap each thought to place it on the stream and watch it go. You don't have to agree or disagree — just observe.
-      </p>
-      <div style={{ position: "relative", height: 120, background: "#EEF4F0", border: `1px solid ${T.sageLight}`, marginBottom: 20, overflow: "hidden" }}>
-        {/* Stream lines */}
-        {[30, 60, 90].map(y => (
-          <div key={y} style={{ position: "absolute", top: y, left: 0, right: 0, height: 1, background: T.sageLight, opacity: 0.5 }} />
-        ))}
-        <p style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", fontSize: 11, color: T.sageLight, textTransform: "uppercase", letterSpacing: "0.1em" }}>
-          {floating ? "flowing..." : floated.length > 0 ? `${floated.length} passed` : "the stream"}
-        </p>
-        {floating && (
-          <div style={{
-            position: "absolute", top: "35%", left: "-10%",
-            animation: "flowAcross 1.8s linear forwards",
-            fontSize: 11, color: T.sage, background: T.white,
-            border: `1px solid ${T.sageLight}`, padding: "4px 10px",
-            whiteSpace: "nowrap",
-          }}>
-            <style>{`@keyframes flowAcross { from { left: -20%; } to { left: 110%; } }`}</style>
-            🍃 floating away...
-          </div>
-        )}
+    <div key="phase" style={{ flex: 1 }}>
+      <Label>Understanding your brain · Step 1 of 3</Label>
+      <div style={{ background: T.terracottaPale, border: `1px solid ${T.terracottaLight}`, padding: "4px 10px", display: "inline-block", marginBottom: 14 }}>
+        <span style={{ fontSize: 10, color: T.terracotta, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.08em" }}>{phase} phase</span>
       </div>
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 8 }}>
-        {ACT_STATEMENTS.filter(s => !floated.includes(s)).map(s => (
-          <button key={s} onClick={() => !floating && floatThought(s)} style={{
-            padding: "10px 14px", border: `1px solid ${T.sageLight}`,
-            background: T.white, color: T.charcoalMid, fontSize: 12,
-            fontFamily: fontBody, cursor: floating ? "default" : "pointer",
-            textAlign: "left", lineHeight: 1.5, opacity: floating ? 0.5 : 1,
-            transition: "opacity 0.3s",
-          }}>
-            "{s}" →
-          </button>
-        ))}
-        {floated.length === ACT_STATEMENTS.length && (
-          <p style={{ fontSize: 13, color: T.sage, fontStyle: "italic", textAlign: "center", padding: 12 }}>All thoughts observed and released.</p>
-        )}
+      <DisplayH size={21} style={{ marginBottom: 12 }}>{phaseInfo.headline}</DisplayH>
+      <p style={{ fontSize: 12, color: T.charcoalMid, lineHeight: 1.75, marginBottom: 14 }}>{phaseInfo.body}</p>
+      <div style={{ background: T.sagePale, border: `1px solid ${T.sageLight}`, padding: "12px 14px" }}>
+        <p style={{ fontSize: 10, color: T.sage, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>Research note</p>
+        <p style={{ fontSize: 11, color: T.charcoalMid, margin: 0, lineHeight: 1.65, fontStyle: "italic" }}>{phaseInfo.data}</p>
       </div>
     </div>,
 
-    // Values anchor
-    <div key="values" style={{ flex: 1 }}>
-      <Label>Body awareness · Step 4</Label>
-      <DisplayH size={22}>What matters to you today — regardless of how your body feels?</DisplayH>
-      <p style={{ fontSize: 13, color: T.charcoalMid, lineHeight: 1.65, marginBottom: 16 }}>
-        ACT asks: even with this discomfort present, what do you want to move toward? Not despite your body — alongside it.
+    <div key="mood" style={{ flex: 1 }}>
+      <Label>Understanding your brain · Step 2 of 3</Label>
+      <div style={{ background: T.terracottaPale, border: `1px solid ${T.terracottaLight}`, padding: "4px 10px", display: "inline-block", marginBottom: 14 }}>
+        <span style={{ fontSize: 10, color: T.terracotta, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.08em" }}>Feeling {mood.replace("_", " ")}</span>
+      </div>
+      <DisplayH size={21} style={{ marginBottom: 12 }}>Why you might feel this way right now.</DisplayH>
+      <p style={{ fontSize: 12, color: T.charcoalMid, lineHeight: 1.75, marginBottom: 16 }}>{moodInfo}</p>
+      <div style={{ background: T.white, border: `1px solid ${T.border}`, padding: "14px 16px" }}>
+        <p style={{ fontSize: 10, color: T.charcoalLight, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>The key distinction</p>
+        <p style={{ fontFamily: fontDisplay, fontSize: 15, fontStyle: "italic", color: T.charcoal, lineHeight: 1.5, margin: 0 }}>
+          {phaseInfo.normalise}
+        </p>
+      </div>
+    </div>,
+
+    <div key="reflect" style={{ flex: 1 }}>
+      <Label>Understanding your brain · Step 3 of 3</Label>
+      <DisplayH size={21} style={{ marginBottom: 12 }}>One question.</DisplayH>
+      <p style={{ fontSize: 12, color: T.charcoalMid, lineHeight: 1.75, marginBottom: 16 }}>
+        If you knew with certainty that how you feel right now is neurobiological and temporary — not a sign of something being permanently wrong — what would you do differently today?
       </p>
-      <textarea value={values} onChange={({target:{value:v}}) => setValues(v)}
-        placeholder={`e.g. Being present with people I care about. Getting the work done that I find meaningful. Taking care of myself without punishing myself for needing it.`}
-        style={{ width: "100%", height: 100, padding: 12, fontSize: 12, fontFamily: fontBody, border: `1.5px solid ${T.border}`, resize: "none", lineHeight: 1.7, background: T.white, boxSizing: "border-box" }} />
+      <textarea value={reflection} onChange={({target:{value:v}}) => setReflection(v)}
+        placeholder="e.g. I would stop trying to push through with the same expectations I have on a good day. I would be less hard on myself for not finishing everything I planned."
+        style={{ width: "100%", height: 120, padding: 12, fontSize: 12, fontFamily: fontBody,
+          border: `1.5px solid ${T.border}`, resize: "none", lineHeight: 1.7,
+          background: T.white, boxSizing: "border-box" }} />
+      <p style={{ fontSize: 11, color: T.charcoalLight, marginTop: 8, fontStyle: "italic", lineHeight: 1.6 }}>
+        This is the intervention. Understanding changes behaviour — even before anything else does.
+      </p>
     </div>,
   ];
 
   return (
     <ScreenWrap style={{ display: "flex", flexDirection: "column" }}>
+      <div style={{ display: "flex", gap: 4, marginBottom: 20 }}>
+        {steps.map((_, i) => (
+          <div key={i} style={{ height: 3, flex: 1, background: i <= step ? T.sage : T.sageLight, transition: "all 0.3s" }} />
+        ))}
+      </div>
       {steps[step]}
       <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
         {step > 0 && <Btn onClick={() => setStep(s => s - 1)} variant="outline" style={{ flex: "0 0 60px" }}>←</Btn>}
@@ -1000,7 +1002,7 @@ function ActIntervention({ onDone }) {
           onClick={() => step < steps.length - 1 ? setStep(s => s + 1) : setDone(true)}
           variant="sage" style={{ flex: 1 }}
         >
-          {step < steps.length - 1 ? "Continue →" : "Complete ✓"}
+          {step < steps.length - 1 ? "Continue →" : "Save my takeaway →"}
         </Btn>
       </div>
     </ScreenWrap>
@@ -1211,7 +1213,7 @@ export default function RhythmDemo() {
         case "journal": return <JournalIntervention {...props} />;
         case "reframe": return <ReframeIntervention {...props} />;
         case "breathwork": return <BreathworkIntervention onDone={props.onDone} />;
-        case "act": return <ActIntervention onDone={props.onDone} />;
+        case "act": return <PsychoeducationIntervention data={userData} onDone={props.onDone} />;
         case "effort": return <EffortIntervention onDone={props.onDone} />;
       }
     }
