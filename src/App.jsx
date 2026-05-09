@@ -284,7 +284,7 @@ function OnboardingPhase({ onNext }) {
       <Label>Step 3 of 4</Label>
       <DisplayH size={26}>How are you today?</DisplayH>
       <p style={{ fontSize: 13, color: T.charcoalMid, lineHeight: 1.65, marginBottom: 20 }}>
-        Your daily state is the primary signal. Phase gives context — you give the data.
+        Your daily state is the primary signal. Phase gives context, you give the data.
       </p>
 
       <p style={{ fontSize: 12, fontWeight: 500, color: T.charcoal, marginBottom: 10, letterSpacing: "0.04em", textTransform: "uppercase" }}>Current cycle phase</p>
@@ -332,7 +332,7 @@ function OnboardingProfile({ data, onNext }) {
       <Label>Step 4 of 4</Label>
       <DisplayH size={26}>Your psychological profile.</DisplayH>
       <p style={{ fontSize: 13, color: T.charcoalMid, lineHeight: 1.65, marginBottom: 20 }}>
-        Two questions. These shape which interventions Rhythm recommends at all.
+        Two questions on mood.
       </p>
 
       <Slider value={anxiety} onChange={setAnxiety} min={1} max={10}
@@ -382,7 +382,7 @@ function InterventionMenu({ data, onSelect }) {
           </p>
         </div>
         <DisplayH size={22} style={{ marginBottom: 6 }}>Your interventions.</DisplayH>
-        <p style={{ fontSize: 12, color: T.charcoalLight, margin: "0 0 4px" }}>Tap one to begin. Each takes 5–8 minutes.</p>
+        <p style={{ fontSize: 12, color: T.charcoalLight, margin: "0 0 4px" }}>Tap one to begin. Each takes 2-5 minutes.</p>
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -427,7 +427,7 @@ function JournalIntervention({ data, onDone }) {
       <Label color={T.sage}>Journaling complete</Label>
       <DisplayH size={26} style={{ marginBottom: 12 }}>Well done.</DisplayH>
       <p style={{ fontSize: 13, color: T.charcoalMid, lineHeight: 1.7, marginBottom: 24 }}>
-        Expressive writing activates prefrontal processing of emotional material — shifting from reactive limbic response toward regulated reflection. Even four sentences changes how your nervous system encodes the experience.
+        Expressive writing activates prefrontal processing of emotional material, shifting from reactive limbic response toward regulated reflection. Even four sentences changes how your nervous system encodes the experience.
       </p>
       <div style={{ background: T.sagePale, border: `1px solid ${T.sageLight}`, padding: "14px 16px", marginBottom: 24 }}>
         <p style={{ fontSize: 11, fontWeight: 500, letterSpacing: "0.08em", textTransform: "uppercase", color: T.sage, marginBottom: 10 }}>Your entries</p>
