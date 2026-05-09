@@ -167,7 +167,7 @@ const GOALS = [
   { id: "knowledge", label: "Understanding my cycle", icon: "◎", desc: "Learn the neuroscience behind your phases" },
   { id: "daily", label: "Daily interventions", icon: "◈", desc: "Guided practices tailored to today" },
   { id: "mental", label: "Mental health support", icon: "◇", desc: "Evidence-based tools for mood and anxiety" },
-  { id: "provider", label: "Acting on provider advice", icon: "◉", desc: "Structured support for recommended interventions" },
+  { id: "provider", label: "Some intervention examples", icon: "◉", desc: "Structured support for recommended interventions" },
 ];
 
 const PHASES = ["Menstrual", "Follicular", "Ovulatory", "Luteal", "Not sure"];
